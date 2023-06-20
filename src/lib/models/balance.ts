@@ -1,18 +1,17 @@
 /*
 * balance model
 */
-import mongoose from 'mongoose';
+import { Schema, Document, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import type { BalanceType } from '../types/model.types';
 
-const Schema = mongoose.Schema;
 const { Balances, Currencies, Users } = appCollections;
 
-const balanceSchema = new Schema<BalanceType>({
+const balanceSchema = new Schema({
     available: {type: Number, required: true, default: 0},
     pending: {type: Number, required: true, default: 0},
-    owner: {type: String, ref: Users, required: true, index: true, get: (v: mongoose.Types.ObjectId) => v.toString()},
-    currency: {type: [String], ref: Currencies, required: true, index: true, get: (v: mongoose.Types.ObjectId[]) => v.map(v => v.toString())},
+    owner: {type: Types.ObjectId, ref: Users, required: true, index: true},
+    currency: {type: [Types.ObjectId], ref: Currencies, required: true, index: true},
     isWithhold: {type: Boolean, default: false},
     createdAt: {type: String, get: (v: Date) => v?.toString()},
     updatedAt: {type: String, get: (v: Date) => v?.toString()}
@@ -34,5 +33,4 @@ const balanceSchema = new Schema<BalanceType>({
 * This is a hack to prevent nextjs from recompiling the model on re-render
 * export default mongoose.model('wallet_balance', balanceSchema); will not work for nextjs 12.1.6
 */
-const model = mongoose.models[Balances] as mongoose.Model<BalanceType> ||  mongoose.model(Balances, balanceSchema);
-export default model;
+export default (models[Balances] as Model<BalanceType>) ||  model(Balances, balanceSchema);

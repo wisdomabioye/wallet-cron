@@ -44,6 +44,7 @@ function handleAgxOnChainDeposit() {
 
 async function entry() {
     try {
+        await UserModel.init();
         // await mongooseConnectPromise;
         handleAgxInternalDeposit();
     } catch (err) {

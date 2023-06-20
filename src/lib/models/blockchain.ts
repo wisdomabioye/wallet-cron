@@ -2,12 +2,11 @@
 * blockchain model
 
 */
-import mongoose from 'mongoose';
+import { Schema, Document, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import { blockchain, blockchainCategory  } from '../type';
 import type { BlockchainType } from '../types/model.types';
 
-const Schema = mongoose.Schema;
 const { Blockchains } = appCollections;
 
 const blockchainSchema = new Schema<BlockchainType>({
@@ -40,5 +39,4 @@ const blockchainSchema = new Schema<BlockchainType>({
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_blockchain', blockchainSchema); will not work for nextjs 12.1.6
 */
-const model = mongoose.models[Blockchains] as mongoose.Model<BlockchainType> || mongoose.model(Blockchains, blockchainSchema);
-export default model;
+export default (models[Blockchains] as Model<BlockchainType>) || model(Blockchains, blockchainSchema);

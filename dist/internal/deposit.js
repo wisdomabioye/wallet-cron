@@ -56,12 +56,10 @@ function finaliseAndUpdateInternalDeposit(CURRENCY_ID) {
                 case 1:
                     currencies = _a.sent();
                     replicaCurrencyIds = currencies.map(function (c) { return c._id; });
-                    console.log('currencies', currencies);
-                    console.log('replicaCurrencyIds', replicaCurrencyIds);
                     return [4 /*yield*/, transaction_1.default.find({
                             type: 'deposit',
                             status: 'pending',
-                            currency: { $in: replicaCurrencyIds },
+                            currency: { $in: replicaCurrencyIds.map(function (v) { return v.toString(); }) },
                             processed: true,
                             internal: true,
                             flagged: false,
@@ -77,9 +75,7 @@ function finaliseAndUpdateInternalDeposit(CURRENCY_ID) {
                             .lean()];
                 case 2:
                     pendingTransactions = _a.sent();
-                    console.log('pendingTransactions', pendingTransactions);
-                    if (pendingTransactions.length > 0)
-                        return [2 /*return*/];
+                    console.log('pendingTransactions', pendingTransactions.length);
                     return [4 /*yield*/, balance_1.default.bulkWrite(pendingTransactions.map(function (tx) {
                             return {
                                 updateOne: {

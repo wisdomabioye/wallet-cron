@@ -31,7 +31,7 @@ export async function processEvmWithdrawal(CURRENCY_ID: string) {
         if (currency.blockchain.disabled) continue;
 
         const { totalWithdrawn } = await dispatchAndUpdateEvmWithdrawal(currency as CurrencyWithContractAddress);
-        const currencyId = currency._id as string;
+        const currencyId = currency._id.toString();
         totalWithdrawnObject[currencyId] = totalWithdrawn;
     }
 

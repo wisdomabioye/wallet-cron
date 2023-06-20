@@ -6,9 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
 var app_config_1 = require("../app.config");
 var type_1 = require("../type");
-var Schema = mongoose_1.default.Schema;
 var Users = app_config_1.appCollections.Users;
-var userSchema = new Schema({
+var userSchema = new mongoose_1.Schema({
     migrated: {
         type: Boolean,
         default: false,
@@ -61,5 +60,4 @@ var userSchema = new Schema({
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_user', userSchema); will not work for nextjs 12.1.6
 */
-var model = mongoose_1.default.models[Users] || mongoose_1.default.model(Users, userSchema);
-exports.default = model;
+exports.default = mongoose_1.models[Users] || (0, mongoose_1.model)(Users, userSchema);

@@ -7,11 +7,10 @@
 * will have their db record and maintain
 * the same name, id, symbol, symbol
 */
-import mongoose from 'mongoose';
+import { Schema, Document, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import type { CurrencyType } from '../types/model.types';
 
-const Schema = mongoose.Schema;
 const { Currencies, Blockchains } = appCollections;
 
 const currencySchema = new Schema<CurrencyType>({
@@ -30,7 +29,7 @@ const currencySchema = new Schema<CurrencyType>({
     depositEnabled: {type: Boolean, default: true},
     depositInstruction: {type: [String], required: true},
    
-    blockchain: {type: String, ref: Blockchains, required: true, index: true, get: (v: mongoose.Types.ObjectId) => v.toString()},
+    blockchain: {type: Types.ObjectId, ref: Blockchains, required: true, index: true},
     lastBlockScanned: {type: String, default: '0'},
     totalDeposited: {type: Number, default: 0},
     totalWithdrawn: {type: Number, default: 0},
@@ -54,5 +53,4 @@ const currencySchema = new Schema<CurrencyType>({
 * This is a hack to prevent nextjs from recompiling the model on re-render
 * export default mongoose.model('wallet_currency', currencySchema); will not work for nextjs 12.1.6
 */
-const model = mongoose.models[Currencies] as mongoose.Model<CurrencyType> || mongoose.model(Currencies, currencySchema);
-export default model;
+export default (models[Currencies] as Model<CurrencyType>) || model(Currencies, currencySchema);

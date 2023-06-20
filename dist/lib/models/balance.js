@@ -5,13 +5,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 */
 var mongoose_1 = require("mongoose");
 var app_config_1 = require("../app.config");
-var Schema = mongoose_1.default.Schema;
 var Balances = app_config_1.appCollections.Balances, Currencies = app_config_1.appCollections.Currencies, Users = app_config_1.appCollections.Users;
-var balanceSchema = new Schema({
+var balanceSchema = new mongoose_1.Schema({
     available: { type: Number, required: true, default: 0 },
     pending: { type: Number, required: true, default: 0 },
-    owner: { type: String, ref: Users, required: true, index: true, get: function (v) { return v.toString(); } },
-    currency: { type: [String], ref: Currencies, required: true, index: true, get: function (v) { return v.map(function (v) { return v.toString(); }); } },
+    owner: { type: mongoose_1.Types.ObjectId, ref: Users, required: true, index: true },
+    currency: { type: [mongoose_1.Types.ObjectId], ref: Currencies, required: true, index: true },
     isWithhold: { type: Boolean, default: false },
     createdAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } },
     updatedAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } }
@@ -31,5 +30,4 @@ var balanceSchema = new Schema({
 * This is a hack to prevent nextjs from recompiling the model on re-render
 * export default mongoose.model('wallet_balance', balanceSchema); will not work for nextjs 12.1.6
 */
-var model = mongoose_1.default.models[Balances] || mongoose_1.default.model(Balances, balanceSchema);
-exports.default = model;
+exports.default = mongoose_1.models[Balances] || (0, mongoose_1.model)(Balances, balanceSchema);

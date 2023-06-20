@@ -7,9 +7,8 @@ var mongoose_1 = require("mongoose");
 var app_config_1 = require("../app.config");
 var main_1 = require("../utils/main");
 var type_1 = require("../type");
-var Schema = mongoose_1.default.Schema;
 var Transactions = app_config_1.appCollections.Transactions, Users = app_config_1.appCollections.Users, Currencies = app_config_1.appCollections.Currencies, Authentications = app_config_1.appCollections.Authentications;
-var transactionSchema = new Schema({
+var transactionSchema = new mongoose_1.Schema({
     from: { type: String, required: function () { return this.type === 'deposit'; } },
     to: { type: String, required: true },
     amount: { type: String, required: true },
@@ -25,9 +24,9 @@ var transactionSchema = new Schema({
     internal: { type: Boolean, default: false },
     flagged: { type: Boolean, default: false },
     comment: String,
-    owner: { type: String, ref: Users, required: true, index: true, get: function (v) { return v.toString(); } },
-    currency: { type: String, ref: Currencies, required: true, index: true, get: function (v) { return v.toString(); } },
-    authentication: { type: String, ref: Authentications, default: null, required: function () { return this.type === 'withdrawal'; }, get: function (v) { return v.toString(); } },
+    owner: { type: mongoose_1.Types.ObjectId, ref: Users, required: true, index: true },
+    currency: { type: mongoose_1.Types.ObjectId, ref: Currencies, required: true, index: true },
+    authentication: { type: mongoose_1.Types.ObjectId, ref: Authentications, default: null, required: function () { return this.type === 'withdrawal'; } },
     attempts: { type: Number, default: 0 },
     createdAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } },
     updatedAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } }
@@ -47,5 +46,4 @@ var transactionSchema = new Schema({
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_transaction', transactionSchema); will not work for nextjs 12.1.6
 */
-var model = mongoose_1.default.models[Transactions] || mongoose_1.default.model(Transactions, transactionSchema);
-exports.default = model;
+exports.default = mongoose_1.models[Transactions] || (0, mongoose_1.model)(Transactions, transactionSchema);

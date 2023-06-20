@@ -1,6 +1,7 @@
+import { Types } from 'mongoose';
 
 export type UserType = {
-    _id: string;
+    _id: Types.ObjectId;
     migrated: boolean;
     email: string;
     name: string;
@@ -15,7 +16,7 @@ export type UserType = {
 }
 
 export type BlockchainType = {
-    _id: string;
+    _id: Types.ObjectId;
     name: string;
     id: string;
     category: string;
@@ -29,7 +30,7 @@ export type BlockchainType = {
 }
 
 export type CurrencyType = {
-    _id: string;
+    _id: Types.ObjectId;
     name: string;
     id: string;
     symbol: string;
@@ -43,7 +44,7 @@ export type CurrencyType = {
     depositEnabled: boolean;
     depositInstruction: string[];
     withdrawalInstruction: string[];
-    blockchain: string | BlockchainType;
+    blockchain: Types.ObjectId | BlockchainType;
     lastBlockScanned: string;
     totalDeposited: number;
     totalWithdrawn: number;
@@ -52,7 +53,7 @@ export type CurrencyType = {
 }
 
 export type TransactionType = {
-    _id: string;
+    _id: Types.ObjectId;
     from: string;
     to: string;
     amount: string;
@@ -68,51 +69,51 @@ export type TransactionType = {
     internal: boolean;
     flagged: boolean;
     comment?: string;
-    owner: string;
-    currency: string;
-    authentication?: string;
+    owner: Types.ObjectId | UserType;
+    currency: Types.ObjectId | CurrencyType;
+    authentication?: Types.ObjectId | null;
     attempts: number;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
 
 export type AddressType = {
-    _id: string;
+    _id: Types.ObjectId;
     address: string;
     key: string;
     active: boolean;
-    owner: string;
-    blockchain: string;
+    owner: Types.ObjectId | UserType;
+    blockchain: Types.ObjectId;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
 
 export type BalanceType = {
-    _id: string;
+    _id: Types.ObjectId;
     available: number;
     pending: number;
-    owner: string;
-    currency: Array<string>;
+    owner: Types.ObjectId | UserType;
+    currency: Array<Types.ObjectId | CurrencyType>;
     isWithhold: boolean;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
 
 export type TwoFactorType = {
-    _id: string;
-    owner: string;
+    _id: Types.ObjectId;
+    owner: Types.ObjectId | UserType;
     enabled: boolean;
     algorithm: string;
     period: number;
     digits: number;
     secret: string;
-    authentication: string;
+    authentication: Types.ObjectId;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
 
 export type MarketType = {
-    _id: string;
+    _id: Types.ObjectId;
     name: string;
     symbol: string;
     id: string;
@@ -125,12 +126,12 @@ export type MarketType = {
 }
 
 export type AuthenticateType = {
-    _id: string;
-    twoFactorAuth: string;
+    _id: Types.ObjectId;
+    twoFactorAuth: TwoFactorType | Types.ObjectId;
     twoFactorOtp: string;
     emailOtp: string;
     emailOtpSentAt: Date;
-    emailOtpVerifiedAt: Date;
+    emailOtpVerifiedAt: Date | null;
     emailOtpVerified: boolean;
     authenticationPassed: boolean;
     eventSignature: string;

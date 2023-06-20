@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { Types } from 'mongoose';
 import Transactions from '../lib/models/transaction';
 import Balances from '../lib/models/balance';
 import Addresses from '../lib/models/address';
@@ -29,7 +30,7 @@ export async function processEvmDeposit(CURRENCY_ID: string) {
     /* 
     * Extract currency _id of currencies
     */
-    const currencyIds: string[] = currencies.map((c) => c._id);
+    const currencyIds = currencies.map((c) => c._id);
 
     // TODO: fetchResult should be {[key: string]: {lastBlockScanned: number, totalDeposited: number}}
     const fetchResult: any = {}; 
@@ -38,7 +39,7 @@ export async function processEvmDeposit(CURRENCY_ID: string) {
         if (currency.blockchain.disabled) continue;
         
         const { lastBlockScanned, totalDeposited } = await fetchEvmTransferAndCreateDeposit(currency as CurrencyWithContractAddress, currencyIds);
-        const currencyId = currency._id as string;
+        const currencyId = currency._id.toString();
         fetchResult[currencyId] = { lastBlockScanned, totalDeposited };
     }
 
@@ -155,7 +156,7 @@ export async function createDepositTransaction(
     currency: CurrencyWithContractAddress,
     filteredDepositEvents: any,
     dbAddresses: AddressType[],
-    replicaCurrencyIds: string[],
+    replicaCurrencyIds: Types.ObjectId[],
     stopBlock: number
     ) {
 
@@ -208,7 +209,7 @@ export async function createDepositTransaction(
     };
 }
 
-export async function fetchEvmTransferAndCreateDeposit(currency: CurrencyWithContractAddress, replicaCurrencyIds: string[]) {
+export async function fetchEvmTransferAndCreateDeposit(currency: CurrencyWithContractAddress, replicaCurrencyIds: Types.ObjectId[]) {
     const { blockchain, lastBlockScanned } = currency;
     const provider = contractWithoutSigner(currency, blockchain);
     

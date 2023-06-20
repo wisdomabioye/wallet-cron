@@ -11,9 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 */
 var mongoose_1 = require("mongoose");
 var app_config_1 = require("../app.config");
-var Schema = mongoose_1.default.Schema;
 var Currencies = app_config_1.appCollections.Currencies, Blockchains = app_config_1.appCollections.Blockchains;
-var currencySchema = new Schema({
+var currencySchema = new mongoose_1.Schema({
     name: { type: String, required: true },
     id: { type: String, required: true },
     symbol: { type: String, required: true },
@@ -27,7 +26,7 @@ var currencySchema = new Schema({
     depositFee: { type: Number, default: 0, min: 0 },
     depositEnabled: { type: Boolean, default: true },
     depositInstruction: { type: [String], required: true },
-    blockchain: { type: String, ref: Blockchains, required: true, index: true, get: function (v) { return v.toString(); } },
+    blockchain: { type: mongoose_1.Types.ObjectId, ref: Blockchains, required: true, index: true },
     lastBlockScanned: { type: String, default: '0' },
     totalDeposited: { type: Number, default: 0 },
     totalWithdrawn: { type: Number, default: 0 },
@@ -49,5 +48,4 @@ var currencySchema = new Schema({
 * This is a hack to prevent nextjs from recompiling the model on re-render
 * export default mongoose.model('wallet_currency', currencySchema); will not work for nextjs 12.1.6
 */
-var model = mongoose_1.default.models[Currencies] || mongoose_1.default.model(Currencies, currencySchema);
-exports.default = model;
+exports.default = mongoose_1.models[Currencies] || (0, mongoose_1.model)(Currencies, currencySchema);

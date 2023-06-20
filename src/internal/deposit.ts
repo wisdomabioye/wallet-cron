@@ -28,12 +28,11 @@ export async function finaliseAndUpdateInternalDeposit(CURRENCY_ID: string) {
 
     const currencies: Array<CurrencyWithContractAddress> = await Currencies.find({id: CURRENCY_ID}).lean();
     const replicaCurrencyIds = currencies.map(c => c._id);
-    console.log('currencies', currencies)
-    console.log('replicaCurrencyIds', replicaCurrencyIds)
+    
     const pendingTransactions: Array<TransactionType & {owner: UserType}> = await Transactions.find({
         type: 'deposit',
         status: 'pending',
-        currency: {$in: replicaCurrencyIds},
+        currency: {$in: replicaCurrencyIds.map(v => v.toString())},
         processed: true,
         internal: true,
         flagged: false,
@@ -48,8 +47,7 @@ export async function finaliseAndUpdateInternalDeposit(CURRENCY_ID: string) {
     .limit(MAX_TRANSACTION_LIMIT)
     .lean();
 
-    console.log('pendingTransactions', pendingTransactions);
-    if (pendingTransactions.length > 0) return;
+    console.log('pendingTransactions', pendingTransactions.length);
 
     const balanceWriteResult =  await Balances.bulkWrite(
         pendingTransactions.map((tx) => {

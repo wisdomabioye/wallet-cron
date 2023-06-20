@@ -1,12 +1,10 @@
 /*
 * User data
 */
-import mongoose from 'mongoose';
+import { Schema, Document, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import { quoteCurrency } from '../type';
 import type { UserType } from '../types/model.types';
-
-const Schema = mongoose.Schema;
 
 const { Users } = appCollections;
 
@@ -64,5 +62,4 @@ const userSchema = new Schema<UserType>({
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_user', userSchema); will not work for nextjs 12.1.6
 */
-const model = mongoose.models[Users] as mongoose.Model<UserType> || mongoose.model(Users, userSchema);
-export default model;
+export default (models[Users] as Model<UserType>) || model(Users, userSchema);

@@ -37,6 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = require("mongoose");
+/*
+* Some schemas are not directly used in this cron.
+* However, they are referenced in other schemas.
+* These schemas must be registered manually by importing them
+*/
+var user_1 = require("./lib/models/user"); // just import to register, not used in this file
 var deposit_evm_1 = require("./agrichainx/deposit.evm");
 var deposit_internal_1 = require("./agrichainx/deposit.internal");
 mongoose_1.default.connect(process.env.DB_HOST).then(function () { return console.log('db connected'); }).catch(function (error) { return console.log('db connect error', error); });
@@ -65,16 +71,23 @@ function handleAgxOnChainDeposit() {
 }
 function entry() {
     return __awaiter(this, void 0, void 0, function () {
+        var err_1;
         return __generator(this, function (_a) {
-            try {
-                // await mongooseConnectPromise;
-                handleAgxInternalDeposit();
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, 3, 4]);
+                    return [4 /*yield*/, user_1.default.init()];
+                case 1:
+                    _a.sent();
+                    // await mongooseConnectPromise;
+                    handleAgxInternalDeposit();
+                    return [3 /*break*/, 4];
+                case 2:
+                    err_1 = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3: return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
             }
-            catch (err) {
-            }
-            finally {
-            }
-            return [2 /*return*/];
         });
     });
 }

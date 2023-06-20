@@ -79,7 +79,7 @@ function processEvmDeposit(CURRENCY_ID) {
                     return [4 /*yield*/, fetchEvmTransferAndCreateDeposit(currency, currencyIds)];
                 case 3:
                     _a = _b.sent(), lastBlockScanned = _a.lastBlockScanned, totalDeposited = _a.totalDeposited;
-                    currencyId = currency._id;
+                    currencyId = currency._id.toString();
                     fetchResult[currencyId] = { lastBlockScanned: lastBlockScanned, totalDeposited: totalDeposited };
                     _b.label = 4;
                 case 4:

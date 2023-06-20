@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { Types } from 'mongoose';
 import Transactions from '../lib/models/transaction';
 import Currencies from '../lib/models/currency';
 import Addresses from '../lib/models/address';
@@ -27,16 +28,16 @@ export async function processInternalWithdrawalTransaction(CURRENCY_ID: string) 
     /* 
     * This is the 'Balance.currency' referencing currencies the 'balance' is for 
     */
-    const currencyIds: string[] = currencies.map(c => c._id);
+    const currencyIds = currencies.map(c => c._id);
     const totalDepositedObject: {[key: string]: number} = {};
     // process internal deposit for each currency variant
     for (const currency of currencies) {
-        if (currency.blockchain.disabled) continue;
+        if ('disabled' in currency.blockchain && currency.blockchain.disabled) continue;
         /* 
         * Extract currency _id of currencies
         */
         const { totalDeposited } = await processInternalWithdrawal(currency as CurrencyWithContractAddress, currencyIds);
-        const currencyId = currency._id as string;
+        const currencyId = currency._id.toString();
         totalDepositedObject[currencyId] = totalDeposited;
     }
 
@@ -135,7 +136,7 @@ export async function finaliseInternalWithdrawal(CURRENCY_ID: string) {
     }
 }
 
-export async function processInternalWithdrawal(currency: CurrencyWithContractAddress, replicaCurrencyIds: string[]) {
+export async function processInternalWithdrawal(currency: CurrencyWithContractAddress, replicaCurrencyIds: Types.ObjectId[]) {
     /* 
     * 1. Fetch pending internal withdrawal transactions not processed
     * 2. Fetch the 'to' address for each transaction

@@ -2,16 +2,15 @@
 * authenticate model
 * For storing authentication details (like for withdrawal and otp enable/disable)) 
 */
-import mongoose from 'mongoose';
+import { Schema, Document, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import type { AuthenticateType } from '../types/model.types';
 import { authEvent } from '../type';
 
-const Schema = mongoose.Schema;
 const { Authentications, TwoFactorAuthentications } = appCollections;
 
-const authenticateSchema = new Schema<AuthenticateType>({
-    twoFactorAuth: {type: String, ref: TwoFactorAuthentications, index: true, get: (v: mongoose.Types.ObjectId) => v.toString()},
+const authenticateSchema = new Schema({
+    twoFactorAuth: {type: Types.ObjectId, ref: TwoFactorAuthentications, index: true},
     twoFactorOtp: {type: String, default: ''}, // 2fa otp supplied by user
     emailOtp: {type: String, required: true},
     emailOtpSentAt: {type: Date, required: true},
@@ -32,5 +31,4 @@ const authenticateSchema = new Schema<AuthenticateType>({
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_authenticate', authenticateSchema); will not work for nextjs 12.1.6
 */
-const model = mongoose.models[Authentications] as mongoose.Model<AuthenticateType> ||  mongoose.model(Authentications, authenticateSchema);
-export default model;
+export default (models[Authentications] as Model<AuthenticateType>) || model(Authentications, authenticateSchema);
