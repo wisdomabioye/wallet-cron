@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 /* 
 * Some schemas are not directly used in this cron.
 * However, they are referenced in other schemas.
-* These schemas must be registered manually by importing them
+* These schemas must be registered manually by importing and using them
 */
 
 import UserModel from './lib/models/user'; // just import to register, not used in this file
@@ -17,46 +17,62 @@ import {
     finaliseAgrichainxInternalDeposit
 } from './agrichainx/deposit.internal';
 
-
+import {
+    updateMarketData
+} from './api/market';
 
 mongoose.connect(process.env.DB_HOST as string).then(() => console.log('db connected')).catch(error => console.log('db connect error', error));
+UserModel.init(); // registering purpose
 
-function handleAgxInternalDeposit() {
+async function handleAgxInternalDeposit() {
+    finaliseAgrichainxInternalDeposit()
+    .catch(error => console.log('handleAgxInternalDeposit', error))
+    .finally(() => {
+        setTimeout(handleAgxInternalDeposit, 15000);
+    })
+}
+
+async function handleAgxOnChainDepositProcessing() {
     try {
-        finaliseAgrichainxInternalDeposit();
+        await processAgrichainxOnchainDeposit();
     } catch (error) {
-        console.log('handleAgxInternalDeposit: ', error);
+        console.log('handleAgxOnChainDepositProcessing: ', error);
     } finally {
-        setTimeout(handleAgxInternalDeposit, 15000)
+        setTimeout(handleAgxOnChainDepositProcessing, 30000);
     }
 }
 
-function handleAgxOnChainDeposit() {
+async function handleAgxOnChainDeposit() {
     try {
-        processAgrichainxOnchainDeposit();
-        finaliseAgrichainxOnchainDeposit();
+        await finaliseAgrichainxOnchainDeposit();
     } catch (error) {
         console.log('handleAgxOnChainDeposit: ', error);
     } finally {
-        setTimeout(handleAgxOnChainDeposit, 15000);
+        setTimeout(handleAgxOnChainDeposit, 30000);
+    }
+}
+
+async function fetchMarketData() {
+    try {
+        await updateMarketData();
+    } catch (error) {
+        console.log('fetchMarketData: ', error);
+    } finally {
+        setTimeout(fetchMarketData, 60000);
     }
 }
 
 async function entry() {
     try {
-        await UserModel.init();
-        // await mongooseConnectPromise;
-        handleAgxInternalDeposit();
-    } catch (err) {
-        
+        await updateMarketData();
+        await finaliseAgrichainxInternalDeposit();
+    } catch (error) {
+        console.log('entry', error);
     } finally {
-
+        // setTimeout(entry, 60000);
     }
 }
 
-entry();
-
-/* process.on('beforeExit', async function() {
-    await mongoose.connection.close();
-    console.log('connection closed')
-}) */
+setInterval(entry, 60000);
+// handleAgxInternalDeposit();
+// fetchMarketData();

@@ -40,59 +40,119 @@ var mongoose_1 = require("mongoose");
 /*
 * Some schemas are not directly used in this cron.
 * However, they are referenced in other schemas.
-* These schemas must be registered manually by importing them
+* These schemas must be registered manually by importing and using them
 */
 var user_1 = require("./lib/models/user"); // just import to register, not used in this file
 var deposit_evm_1 = require("./agrichainx/deposit.evm");
 var deposit_internal_1 = require("./agrichainx/deposit.internal");
+var market_1 = require("./api/market");
 mongoose_1.default.connect(process.env.DB_HOST).then(function () { return console.log('db connected'); }).catch(function (error) { return console.log('db connect error', error); });
+user_1.default.init(); // registering purpose
 function handleAgxInternalDeposit() {
-    try {
-        (0, deposit_internal_1.finaliseAgrichainxInternalDeposit)();
-    }
-    catch (error) {
-        console.log('handleAgxInternalDeposit: ', error);
-    }
-    finally {
-        setTimeout(handleAgxInternalDeposit, 15000);
-    }
-}
-function handleAgxOnChainDeposit() {
-    try {
-        (0, deposit_evm_1.processAgrichainxOnchainDeposit)();
-        (0, deposit_evm_1.finaliseAgrichainxOnchainDeposit)();
-    }
-    catch (error) {
-        console.log('handleAgxOnChainDeposit: ', error);
-    }
-    finally {
-        setTimeout(handleAgxOnChainDeposit, 15000);
-    }
-}
-function entry() {
     return __awaiter(this, void 0, void 0, function () {
-        var err_1;
+        return __generator(this, function (_a) {
+            (0, deposit_internal_1.finaliseAgrichainxInternalDeposit)()
+                .catch(function (error) { return console.log('handleAgxInternalDeposit', error); })
+                .finally(function () {
+                setTimeout(handleAgxInternalDeposit, 15000);
+            });
+            return [2 /*return*/];
+        });
+    });
+}
+function handleAgxOnChainDepositProcessing() {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, 3, 4]);
-                    return [4 /*yield*/, user_1.default.init()];
+                    return [4 /*yield*/, (0, deposit_evm_1.processAgrichainxOnchainDeposit)()];
                 case 1:
                     _a.sent();
-                    // await mongooseConnectPromise;
-                    handleAgxInternalDeposit();
                     return [3 /*break*/, 4];
                 case 2:
-                    err_1 = _a.sent();
+                    error_1 = _a.sent();
+                    console.log('handleAgxOnChainDepositProcessing: ', error_1);
                     return [3 /*break*/, 4];
-                case 3: return [7 /*endfinally*/];
+                case 3:
+                    setTimeout(handleAgxOnChainDepositProcessing, 30000);
+                    return [7 /*endfinally*/];
                 case 4: return [2 /*return*/];
             }
         });
     });
 }
-entry();
-/* process.on('beforeExit', async function() {
-    await mongoose.connection.close();
-    console.log('connection closed')
-}) */ 
+function handleAgxOnChainDeposit() {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, 3, 4]);
+                    return [4 /*yield*/, (0, deposit_evm_1.finaliseAgrichainxOnchainDeposit)()];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 2:
+                    error_2 = _a.sent();
+                    console.log('handleAgxOnChainDeposit: ', error_2);
+                    return [3 /*break*/, 4];
+                case 3:
+                    setTimeout(handleAgxOnChainDeposit, 30000);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function fetchMarketData() {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_3;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, 3, 4]);
+                    return [4 /*yield*/, (0, market_1.updateMarketData)()];
+                case 1:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 2:
+                    error_3 = _a.sent();
+                    console.log('fetchMarketData: ', error_3);
+                    return [3 /*break*/, 4];
+                case 3:
+                    setTimeout(fetchMarketData, 60000);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+function entry() {
+    return __awaiter(this, void 0, void 0, function () {
+        var error_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, 4, 5]);
+                    return [4 /*yield*/, (0, market_1.updateMarketData)()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, (0, deposit_internal_1.finaliseAgrichainxInternalDeposit)()];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 5];
+                case 3:
+                    error_4 = _a.sent();
+                    console.log('entry', error_4);
+                    return [3 /*break*/, 5];
+                case 4: return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
+            }
+        });
+    });
+}
+setInterval(entry, 60000);
+// handleAgxInternalDeposit();
+// fetchMarketData();
