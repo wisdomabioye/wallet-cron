@@ -35,98 +35,174 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.finaliseAndUpdateInternalDeposit = void 0;
 var bignumber_js_1 = require("bignumber.js");
-var transaction_1 = require("../lib/models/transaction");
-var balance_1 = require("../lib/models/balance");
-var currency_1 = require("../lib/models/currency");
-var transaction_2 = require("../lib/mailer/transaction");
-var MAX_TRANSACTION_LIMIT = 100;
-/*
-* Complete pending internal deposit
-* Internal deposits are created from /internal/withdrawal.ts for every internal withdrawal request
-*/
-function finaliseAndUpdateInternalDeposit(CURRENCY_ID) {
-    return __awaiter(this, void 0, void 0, function () {
-        var currencies, replicaCurrencyIds, pendingTransactions, balanceWriteResult, depositWriteResult, depositNotificationWrite;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, currency_1.default.find({ id: CURRENCY_ID }).lean()];
-                case 1:
-                    currencies = _a.sent();
-                    replicaCurrencyIds = currencies.map(function (c) { return c._id; });
-                    return [4 /*yield*/, transaction_1.default.find({
-                            type: 'deposit',
-                            status: 'pending',
-                            currency: { $in: replicaCurrencyIds.map(function (v) { return v.toString(); }) },
-                            processed: true,
-                            internal: true,
-                            flagged: false,
-                        })
-                            .select('owner amount type from to exactAmount currency _id')
-                            .populate([
-                            {
-                                path: 'owner',
-                                select: 'email transactionNotification _id',
-                            }
-                        ])
-                            .limit(MAX_TRANSACTION_LIMIT)
-                            .lean()];
-                case 2:
-                    pendingTransactions = _a.sent();
-                    console.log('pendingTransactions', pendingTransactions.length);
-                    return [4 /*yield*/, balance_1.default.bulkWrite(pendingTransactions.map(function (tx) {
-                            return {
-                                updateOne: {
-                                    filter: {
-                                        owner: tx.owner._id,
-                                        currency: { $in: replicaCurrencyIds }
-                                    },
-                                    update: {
-                                        $inc: { available: new bignumber_js_1.default(tx.exactAmount).toNumber() },
-                                        $set: { currency: replicaCurrencyIds }
-                                    },
-                                    upsert: true,
-                                }
-                            };
-                        }), { ordered: false })];
-                case 3:
-                    balanceWriteResult = _a.sent();
-                    return [4 /*yield*/, transaction_1.default.bulkWrite(pendingTransactions.map(function (tx) { return ({
-                            updateOne: {
-                                filter: { _id: tx._id },
-                                update: { $set: { status: 'successful' } },
-                            }
-                        }); }), { ordered: false })
-                        // Send email notification to user
-                    ];
-                case 4:
-                    depositWriteResult = _a.sent();
-                    return [4 /*yield*/, Promise.allSettled(pendingTransactions
-                            .filter(function (tx) {
-                            var _a;
-                            return (((_a = tx.owner) === null || _a === void 0 ? void 0 : _a.transactionNotification) ? tx.owner.transactionNotification === 1 : true);
-                        })
-                            .map(function (tx) {
-                            return (0, transaction_2.sendTransactionNotificationEmail)(tx.owner.email, {
-                                amount: tx.amount,
-                                type: tx.type,
-                                from: tx.from,
-                                to: tx.to,
-                                symbol: currencies[0].symbol,
-                                name: currencies[0].name
-                            });
-                        }))];
-                case 5:
-                    depositNotificationWrite = _a.sent();
-                    return [2 /*return*/, {
-                            balanceWriteResult: balanceWriteResult,
-                            depositWriteResult: depositWriteResult,
-                            depositNotificationWrite: depositNotificationWrite
-                        }];
-            }
+var transaction_1 = require("../lib/mailer/transaction");
+var app_config_1 = require("../lib/app.config");
+var InternalDepositHandler = /** @class */ (function () {
+    /**
+     *
+     * @param mongooseContext - A valid connected mongoose context
+     */
+    function InternalDepositHandler(mongooseContext, MAX_TRANSACTION_LIMIT) {
+        /**
+        * The maximum number of database transaction to process at once
+        */
+        this.MAX_TRANSACTION_LIMIT = 100;
+        if (MAX_TRANSACTION_LIMIT)
+            this.MAX_TRANSACTION_LIMIT;
+        this.mongooseContext = mongooseContext;
+    }
+    /**
+     * Ensure that the database is connected before attempting database operation
+     */
+    InternalDepositHandler.prototype.ensureDBConnection = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(this.mongooseContext.connection.readyState !== 1)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.mongooseContext.connection.asPromise()];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2:
+                        ;
+                        return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-exports.finaliseAndUpdateInternalDeposit = finaliseAndUpdateInternalDeposit;
+    };
+    /**
+    * Fetch currency for a given (internal) Id string (not objectId)
+    * @param CURRENCY_ID - Internal ID of the currency
+   */
+    InternalDepositHandler.prototype.getCurrencies = function (CURRENCY_ID) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.mongooseContext.models[app_config_1.appCollections.Currencies].find({
+                        id: CURRENCY_ID,
+                        depositEnabled: true
+                    })
+                        .populate('blockchain')
+                        .lean()];
+            });
+        });
+    };
+    /**
+     * Find pending processed internal deposit transaction, increase receiver's balance and update transaction 'status' to 'successful'
+     * @param CURRENCY_ID - Internal ID of the currency
+     * @returns
+     */
+    InternalDepositHandler.prototype.finaliseInternalDeposit = function (CURRENCY_ID, MAX_TRANSACTION_LIMIT) {
+        if (MAX_TRANSACTION_LIMIT === void 0) { MAX_TRANSACTION_LIMIT = this.MAX_TRANSACTION_LIMIT; }
+        return __awaiter(this, void 0, void 0, function () {
+            var currencies, replicaCurrencyIds, pendingTransactions, _a, balanceWrite, depositWrite, balanceWriteResult, depositWriteResult, depositNotificationWrite;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.ensureDBConnection()];
+                    case 1:
+                        _b.sent();
+                        return [4 /*yield*/, this.mongooseContext.models[app_config_1.appCollections.Currencies].find({ id: CURRENCY_ID }).lean()];
+                    case 2:
+                        currencies = _b.sent();
+                        replicaCurrencyIds = currencies.map(function (c) { return c._id; });
+                        return [4 /*yield*/, this.mongooseContext.models[app_config_1.appCollections.Transactions].find({
+                                type: 'deposit',
+                                status: 'pending',
+                                currency: { $in: replicaCurrencyIds.map(function (v) { return v.toString(); }) },
+                                processed: true,
+                                internal: true,
+                                flagged: false,
+                            })
+                                .select('owner amount type from to exactAmount currency _id')
+                                .populate([
+                                {
+                                    path: 'owner',
+                                    select: 'email transactionNotification _id',
+                                }
+                            ])
+                                .limit(MAX_TRANSACTION_LIMIT)
+                                .lean()];
+                    case 3:
+                        pendingTransactions = _b.sent();
+                        if (pendingTransactions.length === 0) {
+                            return [2 /*return*/, {
+                                    balanceWriteResult: 0,
+                                    depositWriteResult: 0,
+                                    depositNotificationWrite: 0
+                                }];
+                        }
+                        _a = pendingTransactions.reduce(function (prev, current) {
+                            return {
+                                balanceWrite: __spreadArray(__spreadArray([], prev.balanceWrite, true), [
+                                    {
+                                        updateOne: {
+                                            filter: {
+                                                owner: current.owner._id,
+                                                currency: { $in: replicaCurrencyIds }
+                                            },
+                                            update: {
+                                                $inc: { available: new bignumber_js_1.default(current.exactAmount).toNumber() },
+                                                $set: { currency: replicaCurrencyIds }
+                                            },
+                                            upsert: true,
+                                        }
+                                    }
+                                ], false),
+                                depositWrite: __spreadArray(__spreadArray([], prev.depositWrite, true), [
+                                    {
+                                        updateOne: {
+                                            filter: { _id: current._id },
+                                            update: { $set: { status: 'successful' } },
+                                        }
+                                    }
+                                ], false)
+                            };
+                        }, { balanceWrite: [], depositWrite: [] }), balanceWrite = _a.balanceWrite, depositWrite = _a.depositWrite;
+                        return [4 /*yield*/, this.mongooseContext.models[app_config_1.appCollections.Balances].bulkWrite(balanceWrite, { ordered: false })];
+                    case 4:
+                        balanceWriteResult = _b.sent();
+                        return [4 /*yield*/, this.mongooseContext.models[app_config_1.appCollections.Transactions].bulkWrite(depositWrite, { ordered: false })
+                            // Send email notification to user
+                        ];
+                    case 5:
+                        depositWriteResult = _b.sent();
+                        return [4 /*yield*/, Promise.allSettled(pendingTransactions
+                                .filter(function (tx) {
+                                var _a;
+                                return (((_a = tx.owner) === null || _a === void 0 ? void 0 : _a.transactionNotification) ? tx.owner.transactionNotification === 1 : true);
+                            })
+                                .map(function (tx) {
+                                return (0, transaction_1.sendTransactionNotificationEmail)(tx.owner.email, {
+                                    amount: tx.amount,
+                                    type: tx.type,
+                                    from: tx.from,
+                                    to: tx.to,
+                                    symbol: currencies[0].symbol,
+                                    name: currencies[0].name
+                                });
+                            }))];
+                    case 6:
+                        depositNotificationWrite = _b.sent();
+                        return [2 /*return*/, {
+                                balanceWriteResult: balanceWriteResult,
+                                depositWriteResult: depositWriteResult,
+                                depositNotificationWrite: depositNotificationWrite
+                            }];
+                }
+            });
+        });
+    };
+    return InternalDepositHandler;
+}());
+exports.default = InternalDepositHandler;

@@ -7,8 +7,11 @@ import type { BlockchainType, CurrencyType } from '../lib/types/model.types';
 * State changing provider
 */
 export function providerWithSigner(blockchain: BlockchainType) {
-    const { distributionAddressKey, rpcUrl, chainId } = blockchain;
-    const provider = new ethers.JsonRpcProvider(rpcUrl, chainId);
+    const { distributionAddressKey, rpcUrl, chainId, name } = blockchain;
+    const provider = new ethers.JsonRpcProvider(rpcUrl, {
+        name,
+        chainId: Number(chainId),
+    });
     
     return new ethers.Wallet(distributionAddressKey, provider);
 }
@@ -17,21 +20,27 @@ export function providerWithSigner(blockchain: BlockchainType) {
 * Read only provider
 */
 export function providerWithoutSigner(blockchain: BlockchainType) {
-    const { rpcUrl, chainId } = blockchain;
-    return new ethers.JsonRpcProvider(rpcUrl, chainId);
+    const { rpcUrl, chainId, name } = blockchain;
+    return new ethers.JsonRpcProvider(rpcUrl, {
+        name,
+        chainId: Number(chainId),
+    });
 }
 
 
 /* 
 * State changing provider
 */
-export function contractWithSigner(currency: CurrencyType & {contractAddress: string}, blockchain: BlockchainType) {
+export async function contractWithSigner(currency: CurrencyType & {contractAddress: string}, blockchain: BlockchainType) {
     const { contractAddress } = currency;
-    const { distributionAddressKey, rpcUrl, chainId } = blockchain;
+    const { distributionAddressKey, rpcUrl, chainId, name } = blockchain;
 
-    const provider = new ethers.JsonRpcProvider(rpcUrl, chainId);
+    const provider = new ethers.JsonRpcProvider(rpcUrl, {
+        name,
+        chainId: Number(chainId),
+    });
+
     const wallet = new ethers.Wallet(distributionAddressKey, provider);
-
     return new ethers.Contract(contractAddress, ERC20ABI, wallet);
 }
 
@@ -40,9 +49,12 @@ export function contractWithSigner(currency: CurrencyType & {contractAddress: st
 */
 export function contractWithoutSigner(currency: CurrencyType & {contractAddress: string}, blockchain: BlockchainType) {
     const { contractAddress } = currency;
-    const { rpcUrl, chainId } = blockchain;
+    const { rpcUrl, chainId, name } = blockchain;
 
-    const provider = new ethers.JsonRpcProvider(rpcUrl, chainId);
+    const provider = new ethers.JsonRpcProvider(rpcUrl, {
+        name,
+        chainId: Number(chainId),
+    });
 
     return new ethers.Contract(contractAddress, ERC20ABI, provider);
 }
