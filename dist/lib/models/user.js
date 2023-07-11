@@ -45,17 +45,17 @@ var userSchema = new mongoose_1.Schema({
     createdAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } },
     updatedAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } }
 }, { timestamps: true, collection: Users });
-/* userSchema.post('find', function(docs: any[]) {
+userSchema.post('find', function (docs) {
     // normalise the date and object id
-    docs.forEach(function(doc) {
-        Object.entries(doc).forEach(([key, value]) => {
-            let stringify = value instanceof mongoose.Types.ObjectId || value instanceof Date;
-            doc[key] = stringify ? (value as any).toString() : value;
-        })
-
+    docs.forEach(function (doc) {
+        Object.entries(doc).forEach(function (_a) {
+            var key = _a[0], value = _a[1];
+            var stringify = value instanceof mongoose_1.Types.ObjectId || value instanceof Date;
+            doc[key] = stringify ? value.toString() : value;
+        });
         delete doc.__v;
     });
-}) */
+});
 /*
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_user', userSchema); will not work for nextjs 12.1.6

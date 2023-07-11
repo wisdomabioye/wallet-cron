@@ -2,7 +2,7 @@
 * authenticate model
 * For storing authentication details (like for withdrawal and otp enable/disable)) 
 */
-import { Schema, Document, Types, models, model, Model } from 'mongoose';
+import { Schema, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import type { AuthenticateType } from '../types/model.types';
 import { authEvent } from '../type';

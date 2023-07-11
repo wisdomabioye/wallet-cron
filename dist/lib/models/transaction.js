@@ -19,10 +19,10 @@ var transactionSchema = new mongoose_1.Schema({
     transactionHash: { type: String, index: true },
     itxHash: { type: String, index: true, default: function () { return (0, main_1.sha256)(this._id.toString()); } },
     status: { type: String, required: true, index: true, default: 'pending', enum: type_1.transactionStatus },
-    processed: { type: Boolean, default: false },
+    processed: { type: Boolean, default: false, index: true },
     type: { type: String, required: true, index: true, enum: type_1.transactionType },
-    internal: { type: Boolean, default: false },
-    flagged: { type: Boolean, default: false },
+    internal: { type: Boolean, default: false, index: true },
+    flagged: { type: Boolean, default: false, index: true },
     comment: String,
     owner: { type: mongoose_1.Types.ObjectId, ref: Users, required: true, index: true },
     currency: { type: mongoose_1.Types.ObjectId, ref: Currencies, required: true, index: true },
@@ -31,17 +31,17 @@ var transactionSchema = new mongoose_1.Schema({
     createdAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } },
     updatedAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } }
 }, { timestamps: true, collection: Transactions });
-/* transactionSchema.post('find', function(docs: any[]) {
-   // normalise the date and object id
-    docs.forEach(function(doc) {
-        Object.entries(doc).forEach(([key, value]) => {
-            let stringify = value instanceof mongoose.Types.ObjectId || value instanceof Date;
-            doc[key] = stringify ? (value as any).toString() : value;
-        })
-
+transactionSchema.post('find', function (docs) {
+    // normalise the date and object id
+    docs.forEach(function (doc) {
+        Object.entries(doc).forEach(function (_a) {
+            var key = _a[0], value = _a[1];
+            var stringify = value instanceof mongoose_1.Types.ObjectId || value instanceof Date;
+            doc[key] = stringify ? value.toString() : value;
+        });
         delete doc.__v;
     });
-}) */
+});
 /*
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_transaction', transactionSchema); will not work for nextjs 12.1.6

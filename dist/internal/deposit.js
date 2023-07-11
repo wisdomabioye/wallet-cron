@@ -139,7 +139,8 @@ var InternalDepositHandler = /** @class */ (function () {
                             return [2 /*return*/, {
                                     balanceWriteResult: 0,
                                     depositWriteResult: 0,
-                                    depositNotificationWrite: 0
+                                    depositNotificationWrite: 0,
+                                    pendingTransaction: 0
                                 }];
                         }
                         _a = pendingTransactions.reduce(function (prev, current) {
@@ -197,7 +198,8 @@ var InternalDepositHandler = /** @class */ (function () {
                         return [2 /*return*/, {
                                 balanceWriteResult: balanceWriteResult,
                                 depositWriteResult: depositWriteResult,
-                                depositNotificationWrite: depositNotificationWrite
+                                depositNotificationWrite: depositNotificationWrite,
+                                pendingTransaction: pendingTransactions.length
                             }];
                 }
             });

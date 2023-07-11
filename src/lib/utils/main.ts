@@ -65,3 +65,41 @@ export function generateBase32SecretTwoFactorString() {
 	]; // only base32 characters
     return new ShortUniqueId({dictionary, length: 16})();
 }
+
+/**
+ * Serialize data
+ * @param data - An Array or Object
+ * @returns 
+ */
+export function serializeData(data: any[] | {[key: string]: any}): any[] | {[key: string]: any} {
+	// Check if the data is an array
+	if (Array.isArray(data)) {
+	  // Serialize each item in the array
+	  return data.map((item) => serializeData(item));
+	}
+  
+	// Check if the data is an object
+	if (typeof data === 'object' && data !== null) {
+	  const serializedData: {[key: string]: any} = {};
+  
+	  // Iterate over each key-value pair
+	  for (const key in data) {
+		// Check if the key is "_id"
+		if (key === '_id') {
+		  // Serialize "_id"
+		  serializedData._id = data[key].toString();
+		} else if (data[key] instanceof Date) {
+		  // Serialize Date objects to ISO strings
+		  serializedData[key] = data[key].toISOString();
+		} else {
+		  // Serialize other fields recursively
+		  serializedData[key] = serializeData(data[key]);
+		}
+	  }
+  
+	  return serializedData;
+	}
+  
+	// Return the data as is for other types
+	return data;
+}

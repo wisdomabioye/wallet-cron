@@ -48,7 +48,6 @@ export default class EvmWithdrawalHandler {
     async getCurrencies(CURRENCY_ID: string): Promise<CurrencyWithContractAddress[]> {
         return this.mongooseContext.models[appCollections.Currencies].find({ 
             id: CURRENCY_ID, 
-            category: this.BLOCKCHAIN_CATEGORY,
             withdrawalEnabled: true
         })
         .populate('blockchain')
@@ -66,13 +65,15 @@ export default class EvmWithdrawalHandler {
         const currencies: CurrencyWithContractAddress[] = await this.getCurrencies(CURRENCY_ID);
     
         const totalWithdrawnObject: {[key: string]: number} = {};
-    
+        
+        let pendingTransactions = 0;
         for (const currency of currencies) {
             if (currency.blockchain.disabled) continue;
     
-            const { totalWithdrawn } = await this.dispatchAndUpdateEvmWithdrawal(currency as CurrencyWithContractAddress, MAX_TRANSACTION_LIMIT);
+            const { totalWithdrawn, pendingTransaction } = await this.dispatchAndUpdateEvmWithdrawal(currency as CurrencyWithContractAddress, MAX_TRANSACTION_LIMIT);
             const currencyId = currency._id.toString();
             totalWithdrawnObject[currencyId] = totalWithdrawn;
+            pendingTransactions += pendingTransaction;
         }
         
         const currencyWrite = Object.keys(totalWithdrawnObject).filter(
@@ -84,14 +85,14 @@ export default class EvmWithdrawalHandler {
             }
         }))
 
-        if (currencyWrite.length === 0) {
-            return 0;
+        if (currencyWrite.length > 0) {
+            await this.mongooseContext.models[appCollections.Currencies].bulkWrite(
+                currencyWrite,
+                {ordered: false}
+            );
         }
         
-        return await this.mongooseContext.models[appCollections.Currencies].bulkWrite(
-            currencyWrite,
-            {ordered: false}
-        );
+        return pendingTransactions;
     }
 
     /**
@@ -115,7 +116,7 @@ export default class EvmWithdrawalHandler {
         .lean();
         
         if (pendingTransactions.length === 0) {
-            return { totalWithdrawn: 0 };
+            return { totalWithdrawn: 0, pendingTransaction: 0 };
         }
     
         const { decimal, blockchain, symbol, id: currencyId, contractAddress } = currency;
@@ -217,6 +218,7 @@ export default class EvmWithdrawalHandler {
     
         return {
             totalWithdrawn: new BigNumber(fromWei(totalToBeWithdrawn.toString(), decimal)).toNumber(),
+            pendingTransaction: pendingTransactions.length
         }
     }
 
@@ -262,7 +264,8 @@ export default class EvmWithdrawalHandler {
         if (pendingTransactions.length === 0) {
             return {
                 withdrawalWriteResult: 0,
-                withdrawalNotificationWrite: 0
+                withdrawalNotificationWrite: 0,
+                pendingTransaction: 0
             }
         }
 
@@ -315,7 +318,8 @@ export default class EvmWithdrawalHandler {
     
         return {
             withdrawalWriteResult,
-            withdrawalNotificationWrite
+            withdrawalNotificationWrite,
+            pendingTransaction: pendingTransactions.length
         }
     }
     

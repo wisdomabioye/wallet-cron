@@ -13,10 +13,10 @@ export default function AgrichainxHandler(ctx: MongooseContext) {
             return { 
                 finalise: async function (maxTransactions?: number) {
                     try {
-                        console.log('internalDeposit>finalise>>>\n');
-                        await instance.finaliseInternalDeposit(CURRENCY_ID, maxTransactions);
+                        const pendingTrx = await instance.finaliseInternalDeposit(CURRENCY_ID, maxTransactions);
+                        console.log('internalDeposit.finalise:pending', pendingTrx, '\n');
                     } catch (e) {
-                        console.error(e);
+                        console.log(e);
                     } finally {
                         setTimeout(this.finalise.bind(this, maxTransactions), 15000);
                     }
@@ -29,10 +29,11 @@ export default function AgrichainxHandler(ctx: MongooseContext) {
             return {
                 start: async function (maxTransactions?: number) {
                     try {
-                        console.log('evmWithdrawal>start>>>\n');
-                        await instance.processEvmWithdrawal(CURRENCY_ID, maxTransactions);
+                        
+                        const pendingTrx = await instance.processEvmWithdrawal(CURRENCY_ID, maxTransactions);
+                        console.log('evmWithdrawal.start:pending', pendingTrx, '\n');
                     } catch (e) {
-                        console.error(e);
+                        console.log(e);
                     } finally {
                         setTimeout(this.start.bind(this, maxTransactions), 15000);
                     }
@@ -40,10 +41,10 @@ export default function AgrichainxHandler(ctx: MongooseContext) {
 
                 finalise: async function (maxTransactions?: number) {
                     try {
-                        console.log('evmWithdrawal>finalise>>>\n');
-                        await instance.confirmAndFinaliseWithdrawal(CURRENCY_ID, maxTransactions);
+                        const pendingTrx = await instance.confirmAndFinaliseWithdrawal(CURRENCY_ID, maxTransactions);
+                        console.log('evmWithdrawal.finalise:pending', pendingTrx, '\n');
                     } catch (e) {
-                        console.error(e);
+                        console.log(e);
                     } finally {
                         setTimeout(this.finalise.bind(this, maxTransactions), 15000);
                     }

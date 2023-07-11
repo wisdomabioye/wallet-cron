@@ -89,10 +89,11 @@ export default class InternalDepositHandler {
             return {
                 balanceWriteResult: 0,
                 depositWriteResult: 0,
-                depositNotificationWrite: 0
+                depositNotificationWrite: 0,
+                pendingTransaction: 0
             }
         }
-        
+
         const { balanceWrite, depositWrite } = pendingTransactions.reduce((prev, current) => {
             return {
                 balanceWrite: [
@@ -159,7 +160,8 @@ export default class InternalDepositHandler {
         return {
             balanceWriteResult,
             depositWriteResult,
-            depositNotificationWrite
+            depositNotificationWrite,
+            pendingTransaction: pendingTransactions.length
         }
     }
 }

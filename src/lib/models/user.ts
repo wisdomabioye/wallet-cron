@@ -1,13 +1,12 @@
 /*
 * User data
 */
-import { Schema, Document, Types, models, model, Model } from 'mongoose';
+import { Schema, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import { quoteCurrency } from '../type';
 import type { UserType } from '../types/model.types';
 
 const { Users } = appCollections;
-
 const userSchema = new Schema<UserType>({
 	migrated: {
 		type: Boolean,
@@ -47,17 +46,18 @@ const userSchema = new Schema<UserType>({
     updatedAt: {type: String, get: (v: Date) => v?.toString()}
 }, {timestamps: true, collection: Users});
 
-/* userSchema.post('find', function(docs: any[]) {
+userSchema.post('find', function(docs: any[]) {
     // normalise the date and object id
 	docs.forEach(function(doc) {
 		Object.entries(doc).forEach(([key, value]) => {
-			let stringify = value instanceof mongoose.Types.ObjectId || value instanceof Date;
+			let stringify = value instanceof Types.ObjectId || value instanceof Date;
 			doc[key] = stringify ? (value as any).toString() : value;
 		})
 
         delete doc.__v; 
     });
-}) */
+})
+
 /* 
 * This is a hack to prevent nextjs from recompiling the modeal on re-render
 * export default mongoose.model('wallet_user', userSchema); will not work for nextjs 12.1.6

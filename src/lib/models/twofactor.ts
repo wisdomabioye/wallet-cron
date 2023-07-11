@@ -2,7 +2,7 @@
 * two factor authenticate model
 * For storing user's withdrawal and otp enable/disable authentication details 
 */
-import { Schema, Document, Types, models, model, Model } from 'mongoose';
+import { Schema, Types, models, model, Model } from 'mongoose';
 import { appCollections } from '../app.config';
 import type { TwoFactorType } from '../types/model.types';
 

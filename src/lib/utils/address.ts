@@ -15,7 +15,7 @@ export const encryptEvmWallet = (wallet: any) => {
     scrypt: {
       // The number must be a power of 2 (default: 131072)
       // The defaut value consumes excessive memory and CPU thus, the need to reduce it for testing purposes.
-      N: 16
+      N: 2
     }
   });
 }

@@ -53,7 +53,6 @@ export default class EvmDepositHandler {
     async getCurrencies(CURRENCY_ID: string): Promise<CurrencyWithContractAddress[]> {
         return this.mongooseContext.models[appCollections.Currencies].find({ 
             id: CURRENCY_ID, 
-            category: this.BLOCKCHAIN_CATEGORY,
             depositEnabled: true
         })
         .populate('blockchain')

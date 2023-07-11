@@ -31,7 +31,7 @@ export const appCollections = {
 	MarketData: 'wallet_market_data',
 	Transactions: 'wallet_transactions',
 	TwoFactorAuthentications: 'wallet_two_factor_authentications',
-}
+} as const
 
 const defaultPrice = {
     usd: 0,

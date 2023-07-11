@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateBase32SecretTwoFactorString = exports.AEScipherDecrypt = exports.AEScipherEncrypt = exports.createHmacSignature = exports.verifyHmacSignature = exports.compareHash = exports.hashPassword = exports.chunkObjectToArray = exports.sha256 = exports.md5 = void 0;
+exports.serializeData = exports.generateBase32SecretTwoFactorString = exports.AEScipherDecrypt = exports.AEScipherEncrypt = exports.createHmacSignature = exports.verifyHmacSignature = exports.compareHash = exports.hashPassword = exports.chunkObjectToArray = exports.sha256 = exports.md5 = void 0;
 var bcrypt_1 = require("bcrypt");
 var crypto_1 = require("crypto");
 var AES = require("crypto-js/aes");
@@ -70,3 +70,39 @@ function generateBase32SecretTwoFactorString() {
     return new short_unique_id_1.default({ dictionary: dictionary, length: 16 })();
 }
 exports.generateBase32SecretTwoFactorString = generateBase32SecretTwoFactorString;
+/**
+ * Serialize data
+ * @param data - An Array or Object
+ * @returns
+ */
+function serializeData(data) {
+    // Check if the data is an array
+    if (Array.isArray(data)) {
+        // Serialize each item in the array
+        return data.map(function (item) { return serializeData(item); });
+    }
+    // Check if the data is an object
+    if (typeof data === 'object' && data !== null) {
+        var serializedData = {};
+        // Iterate over each key-value pair
+        for (var key in data) {
+            // Check if the key is "_id"
+            if (key === '_id') {
+                // Serialize "_id"
+                serializedData._id = data[key].toString();
+            }
+            else if (data[key] instanceof Date) {
+                // Serialize Date objects to ISO strings
+                serializedData[key] = data[key].toISOString();
+            }
+            else {
+                // Serialize other fields recursively
+                serializedData[key] = serializeData(data[key]);
+            }
+        }
+        return serializedData;
+    }
+    // Return the data as is for other types
+    return data;
+}
+exports.serializeData = serializeData;

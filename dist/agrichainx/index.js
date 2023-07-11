@@ -47,19 +47,19 @@ function AgrichainxHandler(ctx) {
             return {
                 finalise: function (maxTransactions) {
                     return __awaiter(this, void 0, void 0, function () {
-                        var e_1;
+                        var pendingTrx, e_1;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     _a.trys.push([0, 2, 3, 4]);
-                                    console.log('internalDeposit>finalise>>>\n');
                                     return [4 /*yield*/, instance.finaliseInternalDeposit(CURRENCY_ID, maxTransactions)];
                                 case 1:
-                                    _a.sent();
+                                    pendingTrx = _a.sent();
+                                    console.log('internalDeposit.finalise:pending', pendingTrx, '\n');
                                     return [3 /*break*/, 4];
                                 case 2:
                                     e_1 = _a.sent();
-                                    console.error(e_1);
+                                    console.log(e_1);
                                     return [3 /*break*/, 4];
                                 case 3:
                                     setTimeout(this.finalise.bind(this, maxTransactions), 15000);
@@ -76,19 +76,19 @@ function AgrichainxHandler(ctx) {
             return {
                 start: function (maxTransactions) {
                     return __awaiter(this, void 0, void 0, function () {
-                        var e_2;
+                        var pendingTrx, e_2;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     _a.trys.push([0, 2, 3, 4]);
-                                    console.log('evmWithdrawal>start>>>\n');
                                     return [4 /*yield*/, instance.processEvmWithdrawal(CURRENCY_ID, maxTransactions)];
                                 case 1:
-                                    _a.sent();
+                                    pendingTrx = _a.sent();
+                                    console.log('evmWithdrawal.start:pending', pendingTrx, '\n');
                                     return [3 /*break*/, 4];
                                 case 2:
                                     e_2 = _a.sent();
-                                    console.error(e_2);
+                                    console.log(e_2);
                                     return [3 /*break*/, 4];
                                 case 3:
                                     setTimeout(this.start.bind(this, maxTransactions), 15000);
@@ -100,19 +100,19 @@ function AgrichainxHandler(ctx) {
                 },
                 finalise: function (maxTransactions) {
                     return __awaiter(this, void 0, void 0, function () {
-                        var e_3;
+                        var pendingTrx, e_3;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0:
                                     _a.trys.push([0, 2, 3, 4]);
-                                    console.log('evmWithdrawal>finalise>>>\n');
                                     return [4 /*yield*/, instance.confirmAndFinaliseWithdrawal(CURRENCY_ID, maxTransactions)];
                                 case 1:
-                                    _a.sent();
+                                    pendingTrx = _a.sent();
+                                    console.log('evmWithdrawal.finalise:pending', pendingTrx, '\n');
                                     return [3 /*break*/, 4];
                                 case 2:
                                     e_3 = _a.sent();
-                                    console.error(e_3);
+                                    console.log(e_3);
                                     return [3 /*break*/, 4];
                                 case 3:
                                     setTimeout(this.finalise.bind(this, maxTransactions), 15000);

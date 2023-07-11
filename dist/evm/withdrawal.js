@@ -102,7 +102,6 @@ var EvmWithdrawalHandler = /** @class */ (function () {
             return __generator(this, function (_a) {
                 return [2 /*return*/, this.mongooseContext.models[app_config_1.appCollections.Currencies].find({
                         id: CURRENCY_ID,
-                        category: this.BLOCKCHAIN_CATEGORY,
                         withdrawalEnabled: true
                     })
                         .populate('blockchain')
@@ -119,18 +118,19 @@ var EvmWithdrawalHandler = /** @class */ (function () {
     EvmWithdrawalHandler.prototype.processEvmWithdrawal = function (CURRENCY_ID, MAX_TRANSACTION_LIMIT) {
         if (MAX_TRANSACTION_LIMIT === void 0) { MAX_TRANSACTION_LIMIT = this.MAX_TRANSACTION_LIMIT; }
         return __awaiter(this, void 0, void 0, function () {
-            var currencies, totalWithdrawnObject, _i, currencies_1, currency, totalWithdrawn, currencyId, currencyWrite;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var currencies, totalWithdrawnObject, pendingTransactions, _i, currencies_1, currency, _a, totalWithdrawn, pendingTransaction, currencyId, currencyWrite;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, this.ensureDBConnection()];
                     case 1:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, this.getCurrencies(CURRENCY_ID)];
                     case 2:
-                        currencies = _a.sent();
+                        currencies = _b.sent();
                         totalWithdrawnObject = {};
+                        pendingTransactions = 0;
                         _i = 0, currencies_1 = currencies;
-                        _a.label = 3;
+                        _b.label = 3;
                     case 3:
                         if (!(_i < currencies_1.length)) return [3 /*break*/, 6];
                         currency = currencies_1[_i];
@@ -138,10 +138,11 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                             return [3 /*break*/, 5];
                         return [4 /*yield*/, this.dispatchAndUpdateEvmWithdrawal(currency, MAX_TRANSACTION_LIMIT)];
                     case 4:
-                        totalWithdrawn = (_a.sent()).totalWithdrawn;
+                        _a = _b.sent(), totalWithdrawn = _a.totalWithdrawn, pendingTransaction = _a.pendingTransaction;
                         currencyId = currency._id.toString();
                         totalWithdrawnObject[currencyId] = totalWithdrawn;
-                        _a.label = 5;
+                        pendingTransactions += pendingTransaction;
+                        _b.label = 5;
                     case 5:
                         _i++;
                         return [3 /*break*/, 3];
@@ -152,11 +153,12 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                                 update: { $inc: { totalWithdrawn: totalWithdrawnObject[_id] } },
                             }
                         }); });
-                        if (currencyWrite.length === 0) {
-                            return [2 /*return*/, 0];
-                        }
+                        if (!(currencyWrite.length > 0)) return [3 /*break*/, 8];
                         return [4 /*yield*/, this.mongooseContext.models[app_config_1.appCollections.Currencies].bulkWrite(currencyWrite, { ordered: false })];
-                    case 7: return [2 /*return*/, _a.sent()];
+                    case 7:
+                        _b.sent();
+                        _b.label = 8;
+                    case 8: return [2 /*return*/, pendingTransactions];
                 }
             });
         });
@@ -191,7 +193,7 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                     case 2:
                         pendingTransactions = _t.sent();
                         if (pendingTransactions.length === 0) {
-                            return [2 /*return*/, { totalWithdrawn: 0 }];
+                            return [2 /*return*/, { totalWithdrawn: 0, pendingTransaction: 0 }];
                         }
                         decimal = currency.decimal, blockchain = currency.blockchain, symbol = currency.symbol, currencyId = currency.id, contractAddress = currency.contractAddress;
                         distributionAddress = blockchain.distributionAddress, distributionAddressKey = blockchain.distributionAddressKey, id = blockchain.id;
@@ -282,6 +284,7 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                         _t.sent();
                         return [2 /*return*/, {
                                 totalWithdrawn: new bignumber_js_1.default((0, web3_1.fromWei)(totalToBeWithdrawn.toString(), decimal)).toNumber(),
+                                pendingTransaction: pendingTransactions.length
                             }];
                 }
             });
@@ -327,7 +330,8 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                         if (pendingTransactions.length === 0) {
                             return [2 /*return*/, {
                                     withdrawalWriteResult: 0,
-                                    withdrawalNotificationWrite: 0
+                                    withdrawalNotificationWrite: 0,
+                                    pendingTransaction: 0
                                 }];
                         }
                         return [4 /*yield*/, Promise.allSettled(pendingTransactions.map(function (tx) {
@@ -371,7 +375,8 @@ var EvmWithdrawalHandler = /** @class */ (function () {
                         withdrawalNotificationWrite = _a.sent();
                         return [2 /*return*/, {
                                 withdrawalWriteResult: withdrawalWriteResult,
-                                withdrawalNotificationWrite: withdrawalNotificationWrite
+                                withdrawalNotificationWrite: withdrawalNotificationWrite,
+                                pendingTransaction: pendingTransactions.length
                             }];
                 }
             });
