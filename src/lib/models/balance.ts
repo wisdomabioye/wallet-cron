@@ -7,7 +7,7 @@ import type { BalanceType } from '../types/model.types';
 
 const { Balances, Currencies, Users } = appCollections;
 
-const balanceSchema = new Schema({
+const balanceSchema = new Schema<BalanceType>({
     available: {type: Number, required: true, default: 0},
     pending: {type: Number, required: true, default: 0},
     owner: {type: Types.ObjectId, ref: Users, required: true, index: true},

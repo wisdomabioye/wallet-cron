@@ -83,7 +83,7 @@ export type AddressType = {
     key: string;
     active: boolean;
     owner: Types.ObjectId | UserType;
-    blockchain: Types.ObjectId;
+    blockchain: Types.ObjectId | BlockchainType;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
@@ -107,7 +107,7 @@ export type TwoFactorType = {
     period: number;
     digits: number;
     secret: string;
-    authentication: Types.ObjectId;
+    authentication: Types.ObjectId | AuthenticateType;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }

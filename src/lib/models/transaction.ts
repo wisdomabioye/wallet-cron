@@ -9,7 +9,7 @@ import type { TransactionType } from '../types/model.types';
 
 const { Transactions, Users, Currencies, Authentications } = appCollections;
 
-const transactionSchema = new Schema({
+const transactionSchema = new Schema<TransactionType>({
 	from: {type: String, required: function() { return (this as any).type === 'deposit'}}, // the address that the transaction is from
 	to: {type: String, required: true}, // the address that the transaction is sent to
 	amount: {type: String, required: true}, // the amount inlcudes the fee

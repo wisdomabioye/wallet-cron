@@ -9,7 +9,7 @@ import { authEvent } from '../type';
 
 const { Authentications, TwoFactorAuthentications } = appCollections;
 
-const authenticateSchema = new Schema({
+const authenticateSchema = new Schema<AuthenticateType>({
     twoFactorAuth: {type: Types.ObjectId, ref: TwoFactorAuthentications, index: true},
     twoFactorOtp: {type: String, default: ''}, // 2fa otp supplied by user
     emailOtp: {type: String, required: true},

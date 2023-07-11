@@ -7,7 +7,7 @@ import type { AddressType } from '../types/model.types';
 
 const { Addresses, Users, Blockchains } = appCollections;
 
-const addressSchema = new Schema({
+const addressSchema = new Schema<AddressType>({
   address: {type: String, required: true, unique: true, index: true}, // we should not convert to lowercase because address may become invalid on some blockchain
   key: {type: String, require: true}, // private key encrypted with a secret key in .env file
   active: {type: Boolean, default: true}, // whether the address is can be used or not

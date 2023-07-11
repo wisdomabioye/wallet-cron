@@ -8,14 +8,14 @@ import type { TwoFactorType } from '../types/model.types';
 
 const { Authentications, TwoFactorAuthentications, Users } = appCollections;
 
-const twoFactorAuthSchema = new Schema({
+const twoFactorAuthSchema = new Schema<TwoFactorType>({
     owner: {type: Types.ObjectId, ref: Users, required: true, index: true},
     enabled: {type: Boolean, default: false},
     algorithm: {type: String, default: 'sha1'}, // sha256, sha512, sha1
     digits: {type: Number, default: 6}, // otp digits
     period: {type: Number, default: 30}, // otp period
     secret: {type: String, default: ''}, // base32 secret
-    authentication: {type: String, ref: Authentications, default: null}, // authentication id used to enable/disable two factor
+    authentication: {type: Types.ObjectId, ref: Authentications}, // authentication id used to enable/disable two factor
     createdAt: {type: String, get: (v: Date) => v?.toString()},
     updatedAt: {type: String, get: (v: Date) => v?.toString()}
 }, {timestamps: true, collection: TwoFactorAuthentications});
