@@ -26,14 +26,13 @@ export const decryptEvmWallet = (json: any) => {
 }
 
 export const getChecksumEvmAddress = (address: string) => {
-  return ethers.utils.getAddress(address);
+  return ethers.getAddress(address);
 }
 
 export const createEvmAddress = () => {
   return ethers.Wallet.createRandom();
 }
 
-
 export const isValidEvmAddress = (address: string) => {
-  return ethers.utils.isAddress(address);
+  return ethers.isAddress(address);
 }
