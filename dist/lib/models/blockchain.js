@@ -9,7 +9,7 @@ var type_1 = require("../type");
 var Blockchains = app_config_1.appCollections.Blockchains;
 var blockchainSchema = new mongoose_1.Schema({
     name: { type: String, required: true },
-    id: { type: String, required: true, enum: type_1.blockchain, index: true, unique: true },
+    id: { type: String, required: true, enum: type_1.blockchain, index: true },
     category: { type: String, required: true, enum: type_1.blockchainCategory },
     chainId: { type: String, required: true },
     rpcUrl: { type: String, required: true },

@@ -27,7 +27,7 @@ const transactionSchema = new Schema<TransactionType>({
 	comment: String,
 	owner: {type: Types.ObjectId, ref: Users, required: true, index: true},
     currency: {type: Types.ObjectId, ref: Currencies, required: true, index: true},
-	authentication: {type: Types.ObjectId, ref: Authentications, default: null, required: function() { return (this as any).type === 'withdrawal'}},
+	authentication: {type: Types.ObjectId, ref: Authentications, required: function() { return (this as any).type === 'withdrawal'}},
 	attempts: {type: Number, default: 0},
 	createdAt: {type: String, get: (v: Date) => v?.toString()},
     updatedAt: {type: String, get: (v: Date) => v?.toString()}

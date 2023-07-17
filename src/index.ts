@@ -27,7 +27,7 @@ function marketDataHandler() {
                 console.log('marketDataHandler>start>>>');
                 await updateMarketData();
             } catch(e) {
-                console.error(e);
+                console.log(e);
             } finally {
                 setTimeout(this.start.bind(this), 60000);
             }
@@ -40,7 +40,7 @@ const internalDeposit = agrichainxHandler.internalDeposit();
 const evmWithdrawal = agrichainxHandler.evmWithdrawal()
 
 internalDeposit.finalise();
-evmWithdrawal.start(5);
+evmWithdrawal.start(3);
 evmWithdrawal.finalise();
 
 // CONSTANTLY FETCH AND UPDATE MARKET DATA

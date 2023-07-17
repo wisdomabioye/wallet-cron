@@ -71,7 +71,7 @@ function marketDataHandler() {
                             return [3 /*break*/, 4];
                         case 2:
                             e_1 = _a.sent();
-                            console.error(e_1);
+                            console.log(e_1);
                             return [3 /*break*/, 4];
                         case 3:
                             setTimeout(this.start.bind(this), 60000);
@@ -87,7 +87,7 @@ var agrichainxHandler = (0, agrichainx_1.default)(mongoose_1.default);
 var internalDeposit = agrichainxHandler.internalDeposit();
 var evmWithdrawal = agrichainxHandler.evmWithdrawal();
 internalDeposit.finalise();
-evmWithdrawal.start(5);
+evmWithdrawal.start(3);
 evmWithdrawal.finalise();
 // CONSTANTLY FETCH AND UPDATE MARKET DATA
 var marketData = marketDataHandler();

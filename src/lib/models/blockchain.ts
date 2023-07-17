@@ -10,7 +10,7 @@ const { Blockchains } = appCollections;
 
 const blockchainSchema = new Schema<BlockchainType>({
     name: {type: String, required: true},
-    id: {type: String, required: true, enum: blockchain, index: true, unique: true}, // our internal id for the blockcahin
+    id: {type: String, required: true, enum: blockchain, index: true}, // our internal id for the blockcahin
     category: {type: String, required: true, enum: blockchainCategory}, // used to generate addresses
     chainId: {type: String, required: true},
     rpcUrl: {type: String, required: true},

@@ -26,7 +26,7 @@ var transactionSchema = new mongoose_1.Schema({
     comment: String,
     owner: { type: mongoose_1.Types.ObjectId, ref: Users, required: true, index: true },
     currency: { type: mongoose_1.Types.ObjectId, ref: Currencies, required: true, index: true },
-    authentication: { type: mongoose_1.Types.ObjectId, ref: Authentications, default: null, required: function () { return this.type === 'withdrawal'; } },
+    authentication: { type: mongoose_1.Types.ObjectId, ref: Authentications, required: function () { return this.type === 'withdrawal'; } },
     attempts: { type: Number, default: 0 },
     createdAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } },
     updatedAt: { type: String, get: function (v) { return v === null || v === void 0 ? void 0 : v.toString(); } }

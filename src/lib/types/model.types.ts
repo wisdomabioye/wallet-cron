@@ -25,6 +25,7 @@ export type BlockchainType = {
     distributionAddressKey: string;
     rpcUrl: string;
     disabled: boolean;
+    explorerUrl?: string;
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }
@@ -71,7 +72,7 @@ export type TransactionType = {
     comment?: string;
     owner: Types.ObjectId | UserType;
     currency: Types.ObjectId | CurrencyType;
-    authentication?: Types.ObjectId | null;
+    authentication?: Types.ObjectId | AuthenticateType;
     attempts: number;
     createdAt?: string | Date;
     updatedAt?: string | Date;
